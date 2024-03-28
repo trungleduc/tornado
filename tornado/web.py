@@ -1603,11 +1603,14 @@ class RequestHandler(object):
         )
         if not token:
             raise HTTPError(403, "'_xsrf' argument missing from POST")
-        _, token, _ = self._decode_xsrf_token(token)
+        _, token, _ = self._decode_xsrf_token(utf8(token))
+        app_log.info(f'############# TOKEN FROM ARG {token}')
         _, expected_token, _ = self._get_raw_xsrf_token()
+        app_log.info(f'############# TOKEN FROM COOKIES {utf8(expected_token)}')
         if not token:
             raise HTTPError(403, "'_xsrf' argument has invalid format")
         if not hmac.compare_digest(utf8(token), utf8(expected_token)):
+            app_log.info(f'############# RAISING ERROR')
             raise HTTPError(403, "XSRF cookie does not match POST argument")
 
     def xsrf_form_html(self) -> str:
